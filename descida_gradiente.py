@@ -3,71 +3,50 @@ import numpy as np
 
 class DescidaGradienteRosenbrock():
 
-    TOLERANCIA_MAXIMA = 1 * (10 ** -4)
-    NUM_MAX_PASSOS = 20000
-    VALOR_INICIAL = np.array([0.0, 0.0, 0.0], dtype=float)
-
+    MAX_PASSOS = 20000
+    TOLERANCIA_MINIMA = 1.0 * (10 ** -4)
 
     def __init__(self, learning_rate):
-        self.LEARNING_RATE = learning_rate
+        self.learning_rate = learning_rate
 
 
     def executar(self):
-        self.passo = 1
-        self.valor_atual = None
-        self.valor_anterior = None
-        self.tolerancia = 1000000
-        self.ponto = self.VALOR_INICIAL
-
-        self.calc_valor_atual()
-        print(self.ponto, self.valor_atual)
-
-        while self.tolerancia >= self.TOLERANCIA_MAXIMA and self.passo <= self.NUM_MAX_PASSOS:
-            # Calculando o valor do gradiente
-            self.calc_gradiente()
-
-            # Calculando o novo ponto em função do gradiente e da taxa de convergência
-            self.ponto = self.ponto - (self.LEARNING_RATE * self.gradiente)
-            self.valor_anterior = self.valor_atual
-            self.calc_valor_atual()
-
-            # Calculando nova tolerância
-            self.calc_tolerancia()
-
-            # Imprimindo resultado desse passo
-            print("(%d) tolerancia=%f anterior=%.16f valor=%.16f" % (self.passo, self.tolerancia, self.valor_anterior, self.valor_atual))
-
-            self.passo += 1
+        passo = 1
+        ponto = np.array([0, 0, 0])
+        ponto_anterior = None
+        gradiente = None
+        tolerancia = 1000000
+        valor = self.func_rosenbrock(ponto[0], ponto[1], ponto[2])
+        valor_anterior = None
 
 
-    def calc_gradiente(self):
-        x1 = self.ponto[0]
-        x2 = self.ponto[1]
-        x3 = self.ponto[2]
+        while passo <= self.MAX_PASSOS and tolerancia >= self.TOLERANCIA_MINIMA:
+            # Calculando gradiente
+            gradiente = self.calc_gradiente(ponto[0], ponto[1], ponto[2])
 
-        # Derivadas obtidas pelo WolframAlpha
-        # Gradiente na direção X1
-        grad_x1 = 2 * ((200 * (x1 ** 3)) - (200 * x1 * x2) + x1 -1)
+            # Calculando novo ponto
+            ponto_anterior = ponto
+            ponto = ponto - (self.learning_rate * gradiente)
 
-        # Gradiente na direção X2
-        grad_x2 = (-200 * (x1 ** 2)) + (400 * (x2 ** 3)) + (x2 * (202 - (400 * x3))) - 2
+            # Calculando novo valor
+            valor_anterior = valor
+            valor = self.func_rosenbrock(ponto[0], ponto[1], ponto[2])
 
-        # Gradiente na direção X3
-        grad_x3 = 200 * (x3 - (x2 ** 2))
+            # Calculando tolerância
+            tolerancia = self.calc_tolerancia(ponto_anterior, ponto)
+            
 
-        self.gradiente = np.array([grad_x1, grad_x2, grad_x3], dtype=float)
-
-
-    def calc_tolerancia(self):
-        n1 = abs(self.valor_atual - self.valor_anterior)
-        n2 = abs(self.valor_anterior)
-
-        self.tolerancia =  n1 / n2 if n1 and n2 else 0
+            print("(%d) x1=%.16f x2=%.16f x3=%.16f tolerancia=%.16f valor=%.16f" % (passo, ponto[0], ponto[1], ponto[2], tolerancia, valor))
+            passo += 1
 
 
-    def calc_valor_atual(self):
-        self.valor_atual = self.func_rosenbrock(self.ponto[0], self.ponto[1], self.ponto[2])
-
+        print("=============================================================")
+        print("Passos = %d" % (passo - 1))
+        print("x1 = %.16f" % (ponto[0]))
+        print("x2 = %.16f" % (ponto[1]))
+        print("x3 = %.16f" % (ponto[2]))
+        print("valor = %.16f" % (valor))
+    
 
     def func_rosenbrock(self, x1, x2, x3):
         resp = 100 * ((x2 - (x1 ** 2)) ** 2)
@@ -78,7 +57,25 @@ class DescidaGradienteRosenbrock():
         return resp
 
 
+    def calc_gradiente(self, x1, x2, x3):
+        grad_x1 = None
+        grad_x2 = None
+        grad_x3 = None
+
+        grad_x1 = 2 * ((200 * (x1 ** 3)) - (200 * x1 * x2) + x1 - 1)
+
+        grad_x2 = (-200 * (x1 ** 2)) + (400 * (x2 ** 3)) + (x2 * (202 - (400 * x3))) -2
+
+        grad_x3 = 200 * (x3 - (x2 ** 2))
+
+        return np.array([grad_x1, grad_x2, grad_x3])
+
+    def calc_tolerancia(self, valor_anterior, valor):
+        return np.linalg.norm(valor - valor_anterior) / np.linalg.norm(valor_anterior)
+        
+
+
 
 # CÓDIGO PRINCIPAL
-descida = DescidaGradienteRosenbrock(1 * (10 ** -4))
+descida = DescidaGradienteRosenbrock(10 ** -3)
 descida.executar()
