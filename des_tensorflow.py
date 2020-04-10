@@ -1,8 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import tensorflow as tf
 
 
-class DescidaGradienteRosenbrock():
+class GradienteTensorFlow():
 
     MAX_PASSOS = 20000
     TOLERANCIA_MINIMA = 1.0 * (10 ** -4)
@@ -71,23 +72,21 @@ class DescidaGradienteRosenbrock():
 
 
     def calc_gradiente(self, x1, x2, x3):
-        grad_x1 = 2 * ((200 * (x1 ** 3)) - (200 * x1 * x2) + x1 - 1)
+        x1_ = tf.convert_to_tensor(x1)
+        x2_ = tf.convert_to_tensor(x2)
+        x3_ = tf.convert_to_tensor(x3)
 
-        grad_x2 = (-200 * (x1 ** 2)) + (400 * (x2 ** 3)) + (x2 * (202 - (400 * x3))) -2
-
-        grad_x3 = 200 * (x3 - (x2 ** 2))
+        with tf.GradientTape() as t:
+            t.watch(x1_)
 
         return np.array([grad_x1, grad_x2, grad_x3])
 
 
     def calc_tolerancia(self, valor_anterior, valor):
         return np.linalg.norm(valor - valor_anterior) / np.linalg.norm(valor_anterior)
-        
-
 
 
 # CÓDIGO PRINCIPAL
 if __name__ == "__main__":
-    descida = DescidaGradienteRosenbrock(10 ** -4)
-    descida.executar()
-    descida.plotar_grafico("Evolução do valor da função $f(x)$ com $lr = 10^{-4}$")
+    gradiente_tensorflow = GradienteTensorFlow(10 ** -3)
+    gradiente_tensorflow.executar()
