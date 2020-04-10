@@ -59,27 +59,43 @@ class GradienteTensorFlow():
         plt.xlabel("Número de atualizações de $x$")
         plt.ylabel("Valor da função $f(x)$")
         plt.show()
+    
+
+    def salvar_grafico(self, titulo, arquivo):
+        # Mostrando gráfico
+        plt.plot(self.todos_valores)
+        plt.title(titulo)
+        plt.xlabel("Número de atualizações de $x$")
+        plt.ylabel("Valor da função $f(x)$")
+        plt.savefig(arquivo)
+
 
     
 
     def func_rosenbrock(self, x1, x2, x3):
-        resp = 100 * ((x2 - (x1 ** 2)) ** 2)
-        resp += (1 - x1) ** 2
-        resp += 100 * ((x3 - (x2 ** 2)) ** 2)
-        resp += (1 - x2) ** 2
+        resp = 100 * ((x2 - (x1 * x1)) * (x2 - (x1 * x1)))
+        resp += (1 - x1) * (1 - x1)
+        resp += 100 * ((x3 - (x2 * x2)) * (x3 - (x2 * x2)))
+        resp += (1 - x2) * (1 - x2)
 
         return resp
 
 
     def calc_gradiente(self, x1, x2, x3):
-        x1_ = tf.convert_to_tensor(x1)
-        x2_ = tf.convert_to_tensor(x2)
-        x3_ = tf.convert_to_tensor(x3)
+        x1_ = tf.Variable(float(x1))
+        x2_ = tf.Variable(float(x2))
+        x3_ = tf.Variable(float(x3))        
 
         with tf.GradientTape() as t:
-            t.watch(x1_)
+            t.watch([x1_, x2_, x3_])
+            func1 = self.func_rosenbrock(x1_, x2_, x3_)
+        
+        gradientes = t.gradient(func1, [x1_, x2_, x3_])
+        grad_x1 = gradientes[0]
+        grad_x2 = gradientes[1]
+        grad_x3 = gradientes[2]
 
-        return np.array([grad_x1, grad_x2, grad_x3])
+        return np.array([float(grad_x1), float(grad_x2), float(grad_x3)])
 
 
     def calc_tolerancia(self, valor_anterior, valor):
@@ -90,3 +106,4 @@ class GradienteTensorFlow():
 if __name__ == "__main__":
     gradiente_tensorflow = GradienteTensorFlow(10 ** -3)
     gradiente_tensorflow.executar()
+    gradiente_tensorflow.salvar_grafico("Evolução do valor da função $f(x)$ com $lr = 10^{-3}$", "resultados/grafico_tensorflow-3.png")
