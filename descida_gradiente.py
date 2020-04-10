@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 class DescidaGradienteRosenbrock():
@@ -18,6 +19,7 @@ class DescidaGradienteRosenbrock():
         tolerancia = 1000000
         valor = self.func_rosenbrock(ponto[0], ponto[1], ponto[2])
         valor_anterior = None
+        self.todos_valores = [valor]
 
 
         while passo <= self.MAX_PASSOS and tolerancia >= self.TOLERANCIA_MINIMA:
@@ -31,6 +33,7 @@ class DescidaGradienteRosenbrock():
             # Calculando novo valor
             valor_anterior = valor
             valor = self.func_rosenbrock(ponto[0], ponto[1], ponto[2])
+            self.todos_valores.append(valor)
 
             # Calculando tolerância
             tolerancia = self.calc_tolerancia(ponto_anterior, ponto)
@@ -46,6 +49,16 @@ class DescidaGradienteRosenbrock():
         print("x2 = %.16f" % (ponto[1]))
         print("x3 = %.16f" % (ponto[2]))
         print("valor = %.16f" % (valor))
+
+
+    def plotar_grafico(self, titulo):
+        # Mostrando gráfico
+        plt.plot(self.todos_valores)
+        plt.title(titulo)
+        plt.xlabel("Número de atualizações de $x$")
+        plt.ylabel("Valor da função $f(x)$")
+        plt.show()
+
     
 
     def func_rosenbrock(self, x1, x2, x3):
@@ -77,5 +90,6 @@ class DescidaGradienteRosenbrock():
 
 
 # CÓDIGO PRINCIPAL
-descida = DescidaGradienteRosenbrock(10 ** -3)
+descida = DescidaGradienteRosenbrock(10 ** -4)
 descida.executar()
+descida.plotar_grafico("Evolução do valor da função $f(x)$ com $lr = 10^{-4}$")
