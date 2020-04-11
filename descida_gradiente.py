@@ -88,6 +88,10 @@ class DescidaGradienteRosenbrock():
 
 # CÓDIGO PRINCIPAL
 if __name__ == "__main__":
-    descida = DescidaGradienteRosenbrock(10 ** -4)
-    descida.executar()
-    descida.plotar_grafico("Evolução do valor da função $f(x)$ com $lr = 10^{-4}$")
+    descida = DescidaGradienteRosenbrock(10 ** -3)
+    try:
+        descida.executar()
+    except:
+        pass
+    
+    descida.plotar_grafico("Evolução do valor da função $f(x)$ com $lr = 10^{-3}$")
